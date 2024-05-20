@@ -1,0 +1,19 @@
+#!/bin/bash
+
+set -e  # Exit immediately if a command exits with a non-zero status.
+set -x  # All executed commands are printed to the terminal
+
+mv /tmp/builder/etc/apt/keyrings/mozilla.gpg /etc/apt/keyrings/
+mv /tmp/builder/etc/apt/sources.list.d/mozilla.list /etc/apt/sources.list.d/
+
+aptitude update ; aptitude install -y firefox firefox-l10n-es-es openjdk-17-jre libnss3-tools xdg-utils
+
+useradd -m -u 1000 -p U6aMy0wojraho -G sudo -s /bin/bash user
+rm -rf /home/user
+mv /tmp/builder/home/user /home
+
+dpkg -i /tmp/builder/tmp/AutoFirma*
+
+apt-get -y autoremove ; aptitude -y autoclean ; apt-get -y autoclean
+rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /root/.aptitude
+
