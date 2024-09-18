@@ -1,0 +1,32 @@
+#!/bin/bash
+
+set -e  # Exit immediately if a command exits with a non-zero status.
+set -x  # All executed commands are printed to the terminal
+
+mv /tmp/contents/static/google.gpg /etc/apt/keyrings/
+mv /tmp/contents/static/google.list /etc/apt/sources.list.d/
+
+aptitude update ; aptitude install -y curl google-chrome-stable openjdk-17-jre libnss3-tools xdg-utils xvfb
+
+useradd -m -u 1000 -p U6aMy0wojraho -G sudo -s /bin/bash user
+
+su user xdg-mime default afirma.desktop x-scheme-handler/afirma
+su user -c "xvfb-run google-chrome-stable --no-sandbox" &
+pid=$!
+sleep 5
+kill $pid
+killall Xvfb chrome
+
+curl 'https://estaticos.redsara.es/comunes/autofirma/currentversion/AutoFirma_Linux_Debian.zip' -H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:126.0) Gecko/20100101 Firefox/126.0' -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8' -H 'Accept-Language: es-ES,es;q=0.8,en-US;q=0.5,en;q=0.3' -H 'Accept-Encoding: gzip, deflate, br, zstd' -H 'DNT: 1' -H 'Sec-GPC: 1' -H 'Connection: keep-alive' -H 'Upgrade-Insecure-Requests: 1' -H 'Sec-Fetch-Dest: document' -H 'Sec-Fetch-Mode: navigate' -H 'Sec-Fetch-Site: none' -H 'Sec-Fetch-User: ?1' -H 'Priority: u=1' --output /tmp/autofirma.zip
+
+unzip -d /tmp /tmp/autofirma.zip
+dpkg -i /tmp/AutoFirma*
+
+su user xvfb-run autofirma &
+pid=$!
+sleep 5
+kill $pid
+sed -i '$i\ <entry key="secureConnections" value="false"/>' /home/user/.java/.userPrefs/es/gob/afirma/standalone/ui/preferences/prefs.xml
+sed -i '$i\ <entry key="omitAskOnClose" value="true"/>' /home/user/.java/.userPrefs/es/gob/afirma/standalone/ui/preferences/prefs.xml
+
+rm -rf /home/user/.config/google-chrome/Singleton*

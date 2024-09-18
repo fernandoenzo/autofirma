@@ -1,0 +1,5 @@
+# Google Chrome
+# gpg --no-default-keyring --keyring /tmp/temp.keyring --keyserver keyserver.ubuntu.com --recv-keys 4EB27DB2A3B88B8B
+# sudo gpg -o /etc/apt/keyrings/google.gpg --export --no-default-keyring --keyring /tmp/temp.keyring 4EB27DB2A3B88B8B
+
+deb [arch=amd64 signed-by=/etc/apt/keyrings/google.gpg] https://dl.google.com/linux/chrome/deb/ stable main
